@@ -1,7 +1,13 @@
-# Author: 
-# Date:
-# Project: 
-# Acknowledgements: 
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[25]:
+
+
+# Author: Dýrmundur Helgi R. Óskarsson
+# Date: 15.9.2023
+# Project: 4 Linear Regression
+# Acknowledgements: Einar Óskar og Torfi Tímóteus
 #
 
 # NOTE: Your code should NOT contain any main functions or code that is executed
@@ -14,6 +20,11 @@ import matplotlib.pyplot as plt
 from tools import load_regression_iris
 from scipy.stats import multivariate_normal
 
+
+# In[49]:
+
+
+# Part 1.1
 
 def mvn_basis(
     features: np.ndarray,
@@ -35,12 +46,52 @@ def mvn_basis(
     * fi - [NxM] is the basis function vectors containing a basis function
     output fi for each data vector x in features
     '''
-    pass
+    N, D = features.shape
+    M = mu.shape[0]
+    
+    fi = np.zeros((N, M))
+    
+    for i in range(N):
+        for j in range(M):
+            mvn = multivariate_normal(mu[j], sigma * np.eye(D))
+            fi[i, j] = mvn.pdf(features[i])
+    
+    return fi
 
+#X, t = load_regression_iris()
+#N, D = X.shape
+
+#M, sigma = 10, 10
+#mu = np.zeros((M, D))
+#for i in range(D):
+#    mmin = np.min(X[i, :])
+#    mmax = np.max(X[i, :])
+#    mu[:, i] = np.linspace(mmin, mmax, M)
+#fi = mvn_basis(X, mu, sigma)
+#print(fi)
+
+
+# Part 1.2
 
 def _plot_mvn():
-    pass
+    for j in range(mu.shape[0]):
+        plt.plot(X[:, 0], fi[:, j], label=f'Basis Function {j+1}')
+    
+    plt.xlabel('Feature')
+    plt.ylabel('MVN Basis Function Output')
+    plt.legend()
+    plt.title('MVN Basis Functions')
+    plt.grid(True)
+    plt.savefig("plot_1_2_1.png")
+    plt.show()
+    
+#_plot_mvn()
 
+
+# In[50]:
+
+
+# Part 1.3
 
 def max_likelihood_linreg(
     fi: np.ndarray,
@@ -57,8 +108,23 @@ def max_likelihood_linreg(
 
     Output: [Mx1], the maximum likelihood estimate of w for the linear model
     '''
-    pass
+    N, M = fi.shape
+    I = np.eye(M)
+    
+    w = np.dot(np.linalg.inv(np.dot(fi.T, fi) + lamda * I), np.dot(fi.T, targets))
+    
+    return w
 
+#fi = mvn_basis(X, mu, sigma)
+#lamda = 0.001
+#wml = max_likelihood_linreg(fi, t, lamda)
+#print(wml)
+
+
+# In[51]:
+
+
+# Part 1.4
 
 def linear_model(
     features: np.ndarray,
@@ -78,4 +144,40 @@ def linear_model(
 
     Output: [Nx1] The prediction for each data vector in features
     '''
-    pass
+    N, D = features.shape
+    M = mu.shape[0]
+    fi = np.zeros((N, M))
+    
+    for i in range(N):
+        for j in range(M):
+            mvn = multivariate_normal(mu[j], sigma * np.eye(D))
+            fi[i, j] = mvn.pdf(features[i])
+    
+    predictions = np.dot(fi, w)
+    
+    return predictions
+
+#wml = max_likelihood_linreg(fi, t, lamda)
+#prediction = linear_model(X, mu, sigma, wml)
+#print(prediction)
+
+
+# In[52]:
+
+
+#plt.plot(prediction)
+#plt.plot(X)
+#plt.show()
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
