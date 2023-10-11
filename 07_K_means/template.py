@@ -1,7 +1,13 @@
-# Author: 
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
+# Author: Dýrmundur Helgi R. Óskarsson
 # Date:
-# Project: 
-# Acknowledgements: 
+# Project: 07 K-means Clustering
+# Acknowledgements: Torfi & Einar
 #
 
 # NOTE: Your code should NOT contain any main functions or code that is executed
@@ -21,6 +27,8 @@ from typing import Union
 from tools import load_iris, image_to_numpy, plot_gmm_results
 
 
+# Section 1.1
+
 def distance_matrix(
     X: np.ndarray,
     Mu: np.ndarray
@@ -38,8 +46,14 @@ def distance_matrix(
     where out[i, j] is the euclidian distance between X[i, :]
     and Mu[j, :]
     '''
-    pass
+    out = np.zeros((X.shape[0], Mu.shape[0]))
+    for i in range(X.shape[0]):
+        for j in range(Mu.shape[0]):
+            out[i, j] = np.linalg.norm(X[i] - Mu[j])
+    return out
 
+
+# Section 1.2
 
 def determine_r(dist: np.ndarray) -> np.ndarray:
     '''
@@ -53,8 +67,15 @@ def determine_r(dist: np.ndarray) -> np.ndarray:
     out (np.ndarray): A [n x k] array where out[i, j] is
     1 if sample i is closest to prototype j and 0 otherwise.
     '''
-    pass
+    r = np.zeros(dist.shape, dtype=int)
 
+    min_indices = np.argmin(dist, axis=1)
+    for i, index in enumerate(min_indices):
+        r[i, index] = 1
+    return r
+
+
+# Section 1.3
 
 def determine_j(R: np.ndarray, dist: np.ndarray) -> float:
     '''
@@ -70,8 +91,10 @@ def determine_j(R: np.ndarray, dist: np.ndarray) -> float:
     Returns:
     * out (float): The value of the objective function
     '''
-    pass
+    return np.sum(R * dist) / R.shape[0]
 
+
+# Section 1.4
 
 def update_Mu(
     Mu: np.ndarray,
@@ -90,8 +113,13 @@ def update_Mu(
     Returns:
     out (np.ndarray): A [k x f] array of updated prototypes.
     '''
-    pass
+    num = np.dot(R.T, X)
+    den = R.sum(axis=0)[:, np.newaxis]
+    
+    return num / den
 
+
+# Section 1.5
 
 def k_means(
     X: np.ndarray,
@@ -108,22 +136,35 @@ def k_means(
     nn = sk.utils.shuffle(range(X_standard.shape[0]))
     Mu = X_standard[nn[0: k], :]
 
-    # !!! Your code here !!!
+    Js = []
+    for _ in range(num_its):
+        dist = distance_matrix(X_standard, Mu)
+        R = determine_r(dist)
+        Mu = update_Mu(Mu, X_standard, R)
+        Js.append(determine_j(R, dist))
 
     # Then we have to "de-standardize" the prototypes
     for i in range(k):
         Mu[i, :] = Mu[i, :] * X_std + X_mean
 
-    # !!! Your code here !!!
+    return Mu, R, Js
 
 
+# Section 1.6
 def _plot_j():
-    pass
+    plt.plot(Js)
+    
+
+# Section 1.7
+
+def _plot_multi_j(ks):
+    for k in ks:
+        _, _, Js = k_means(X, k, 10)
+        plt.plot(Js)
+    plt.show()
 
 
-def _plot_multi_j():
-    pass
-
+# Section 1.9
 
 def k_means_predict(
     X: np.ndarray,
@@ -146,12 +187,41 @@ def k_means_predict(
     Returns:
     * the predictions (list)
     '''
-    pass
+    k=len(classes)
+    _, R, _ = k_means(X, k, num_its)
+    
+    cluster_labels = {}
+    for i in range(k):
+        indices = np.where(R[:, i]==1)[0]
+        most_common_class = np.bincount(t[indices]).argmax()
+        cluster_labels[i] = most_common_class
+        
+    predictions = np.zeros(X.shape[0])
+    for i in range(X.shape[0]):
+        cluster_idx = np.where(R[i]==1)[0][0]
+        predictions[i] = cluster_labels[cluster_idx]
+    
+    return predictions
 
 
-def _iris_kmeans_accuracy():
-    pass
+# Section 1.10
 
+def iris_kmeans_accuracy(true_labels: np.ndarray, kmeans_predictions: np.ndarray) -> tuple:
+    accuracy = accuracy_score(true_labels, kmeans_predictions)
+    conf_matrix = confusion_matrix(true_labels, kmeans_predictions)
+    
+    return accuracy, conf_matrix
+
+#X, y, c = load_iris()
+#classes = [0, 1, 2]
+#kmeans_predictions = k_means_predict(X, y, classes, 5)
+#accuracy, conf_matrix = iris_kmeans_accuracy(y, kmeans_predictions)
+
+#print("Accuracy:", accuracy)
+#print("Confusion Matrix:\n", conf_matrix)
+
+
+# Section 2.1
 
 def _my_kmeans_on_image():
     pass
@@ -162,10 +232,19 @@ def plot_image_clusters(n_clusters: int):
     Plot the clusters found using sklearn k-means.
     '''
     image, (w, h) = image_to_numpy()
-    ...
-    plt.subplot('121')
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(image)
+    
+    plt.figure(figsize=(14, 7))
+    plt.subplot(121)
     plt.imshow(image.reshape(w, h, 3))
-    plt.subplot('122')
-    # uncomment the following line to run
-    # plt.imshow(kmeans.labels_.reshape(w, h), cmap="plasma")
+    plt.subplot(122)
+    plt.imshow(kmeans.labels_.reshape(w, h), cmap="plasma")
+    plt.title(f'Clusters: {n_clusters}')
     plt.show()
+    
+#for clusters in [2, 5, 10, 20]:
+#    plot_image_clusters(clusters)
+
+
+
+

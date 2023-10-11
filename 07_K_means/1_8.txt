@@ -1,0 +1,5 @@
+- Best value should be k=10 according to my results in section 1.7.
+
+- We would not gain anything from it because we would have the same number of clusters as sample points.
+
+- Therefore it is not useful and would be considered overfitting.

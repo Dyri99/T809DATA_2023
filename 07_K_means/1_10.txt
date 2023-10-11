@@ -1,0 +1,9 @@
+See code in section 1.10
+
+- I ran this a few times and got different output. The accuracy was ca between 0.6 and 0.9.
+
+Accuracy: 0.84
+Confusion Matrix:
+ [[49  1  0]
+ [ 0 35 15]
+ [ 0  8 42]]
