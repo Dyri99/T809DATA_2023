@@ -1,0 +1,3 @@
+The Eigenvalue plot typically shows a decreasing trend because the first principal component explains the most variance, and the last one the least.
+
+The cumulative variance plot shows an increasing trend because it is the cumulative sum of the explained variance.
