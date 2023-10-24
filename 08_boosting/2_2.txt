@@ -1,0 +1,2 @@
+- n_estimators = 200: because we want more trees, increases the models performance.
+- max_depth = 40: we don't want it to overfit

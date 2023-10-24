@@ -1,0 +1,1 @@
+Replaced NaN values with the median value of the age. Replaceing it with the average could also work.
